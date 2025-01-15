@@ -1,6 +1,6 @@
-import { Button, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
-import { BleManager, Device } from "react-native-ble-plx";
+import { BleManager } from "react-native-ble-plx";
 import { Buffer } from "buffer";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
@@ -8,10 +8,10 @@ import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 
 export default function SettingsScreen() {
-  const { weightData, scanForScales } = useScale();
+  const { weightData, subscribeToWeightData } = useScale();
 
   useEffect(() => {
-    scanForScales();
+    subscribeToWeightData();
 
     return () => {
       bleManager.stopDeviceScan();
@@ -78,13 +78,7 @@ const bleManager = new BleManager();
 const useScale = () => {
   const [weightData, setWeightData] = useState<WeightData | null>(null);
 
-  const parseWeightData = (manufacturerData: number[]): WeightData => {
-    const weight = (manufacturerData[10] * 256 + manufacturerData[11]) / 100;
-    const isKg = manufacturerData[14] === 1;
-    return { weight, unit: isKg ? "kg" : "lb" };
-  };
-
-  const scanForScales = () =>
+  const subscribeToWeightData = () =>
     bleManager.startDeviceScan(null, null, (error, device) => {
       if (error) {
         console.log("Scan error:", error);
@@ -117,5 +111,5 @@ const useScale = () => {
       }
     });
 
-  return { weightData, scanForScales };
+  return { weightData, subscribeToWeightData };
 };
