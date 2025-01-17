@@ -1,7 +1,6 @@
 import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
-
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
@@ -44,6 +43,8 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="gearshape.fill" color={color} />
           ),
+          // Hide the tab on web it doesn't support Bluetooth API
+          ...(Platform.OS === "web" && { href: null }),
         }}
       />
       <Tabs.Screen

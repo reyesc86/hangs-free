@@ -1,14 +1,13 @@
 import { StyleSheet } from "react-native";
-import { useEffect, useState } from "react";
-import { BleManager } from "react-native-ble-plx";
-import { Buffer } from "buffer";
+import { useEffect } from "react";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useScale } from "@/hooks/useScale";
 
 export default function SettingsScreen() {
-  const { weightData, subscribeToWeightData } = useScale();
+  const { bleManager, weightData, subscribeToWeightData } = useScale();
 
   useEffect(() => {
     subscribeToWeightData();
@@ -66,50 +65,3 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-
-// LOGIC
-interface WeightData {
-  weight: number;
-  unit: "kg" | "lb";
-}
-
-const bleManager = new BleManager();
-
-const useScale = () => {
-  const [weightData, setWeightData] = useState<WeightData | null>(null);
-
-  const subscribeToWeightData = () =>
-    bleManager.startDeviceScan(null, null, (error, device) => {
-      if (error) {
-        console.log("Scan error:", error);
-        return;
-      }
-
-      const manufacturerData = device?.manufacturerData;
-      if (manufacturerData && device?.name?.includes("IF_B7")) {
-        try {
-          const data = Array.from(Buffer.from(manufacturerData, "base64"));
-
-          console.log("=== Weight Calculation ===");
-          console.log(`Byte 12: ${data[12]}`);
-          console.log(`Byte 13: ${data[13]}`);
-
-          // Convert two bytes to a 16-bit integer (big-endian)
-          const weight = (data[12] * 256 + data[13]) / 100;
-          const isStable = data[16] === 1; // From STABLE_OFFSET in iOS code
-
-          console.log(
-            `Result: ${weight}${isStable ? " (stable)" : " (unstable)"}`
-          );
-          console.log("Full data:", data);
-          console.log("========================");
-
-          setWeightData({ weight, unit: "kg" }); // iOS code doesn't show unit checking
-        } catch (e) {
-          console.log("Error parsing data:", e);
-        }
-      }
-    });
-
-  return { weightData, subscribeToWeightData };
-};
