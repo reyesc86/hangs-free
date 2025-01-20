@@ -32,10 +32,8 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="myapp"/>
-        <data android:scheme="com.rbatsenko.climbingliftingscaleapp"/>
-        <data android:scheme="exp+climbing-lifting-scale-app"/>
-        <data android:scheme="exp+hangs-free"/>
         <data android:scheme="com.rbatsenko.hangsfree"/>
+        <data android:scheme="exp+hangs-free"/>
       </intent-filter>
     </activity>
   </application>
