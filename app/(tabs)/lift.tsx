@@ -22,6 +22,25 @@ type HandData = {
 
 type CycleData = { left: WeightDataPoint[]; right: WeightDataPoint[] };
 
+const now = Date.now();
+const nowPlus1 = now + 1000;
+const nowPlus2 = now + 2000;
+const nowPlus3 = now + 3000;
+const nowPlus4 = now + 4000;
+
+const initialCycleHandData = [
+  { weight: 0, timestamp: now },
+  { weight: 5, timestamp: nowPlus1 },
+  { weight: 10, timestamp: nowPlus2 },
+  { weight: 5, timestamp: nowPlus3 },
+  { weight: 0, timestamp: nowPlus4 },
+];
+
+const initialCycleData: CycleData = {
+  left: initialCycleHandData,
+  right: initialCycleHandData,
+};
+
 export default function Settings() {
   const colorScheme = useColorScheme() ?? "light";
   const isLight = colorScheme === "light";
@@ -32,12 +51,9 @@ export default function Settings() {
   });
 
   const [cycleStarted, setCycleStarted] = useState(false);
-  const [cycleData, setCycleData] = useState<CycleData>({
-    left: [],
-    right: [],
-  });
+  const [cycleData, setCycleData] = useState<CycleData>(initialCycleData);
   const [currentPoint, setCurrentPoint] = useState<WeightDataPoint | null>(
-    null
+    initialCycleData.left[0]
   );
   // const maxPoint = useMemo(
   //   () =>
@@ -110,7 +126,7 @@ export default function Settings() {
     setCycleStarted(false);
     setCycleData((prev) => ({
       ...prev,
-      [selectedHand]: [],
+      [selectedHand]: initialCycleHandData,
     }));
     reset();
   };
@@ -121,10 +137,7 @@ export default function Settings() {
       right: initialWeightData,
     });
     setCycleStarted(false);
-    setCycleData({
-      left: [],
-      right: [],
-    });
+    setCycleData(initialCycleData);
     reset();
   };
 

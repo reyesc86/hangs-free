@@ -21,37 +21,30 @@ export default function HomeScreen() {
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
+        <ThemedView style={styles.stepContainer}>
+          <ThemedText type="subtitle">
+            Step 1: View Current Weight (force)
+          </ThemedText>
+          <ThemedText>
+            Check the current weight displayed on the screen. The app will
+            continuously update the weight in real-time when your crane scale
+            device is on.
+          </ThemedText>
+        </ThemedView>
+        <ThemedText type="subtitle">Step 2: Measure Max force</ThemedText>
         <ThemedText>
-          Edit{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: "cmd + d",
-              android: "cmd + m",
-              web: "F12",
-            })}
-          </ThemedText>{" "}
-          to open developer tools.
+          Use the app to measure your maximum force. It will remember the
+          highest value from your try. We don't support saving results for now,
+          so make sure you note them down somewhere.
         </ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
+        <ThemedText type="subtitle">Step 3: Analyze Recent Cycle</ThemedText>
         <ThemedText>
-          Tap the Explore tab to learn more about what's included in this
-          starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{" "}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText>{" "}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-          directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
+          View the recent cycle graph to analyze your weight (force) changes
+          over time. The graph provides a visual representation of your weight
+          data points. When there is no data yet, the graph shows example data
+          points.
         </ThemedText>
       </ThemedView>
     </ParallaxScrollView>
@@ -63,6 +56,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    marginVertical: 16,
   },
   stepContainer: {
     gap: 8,
