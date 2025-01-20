@@ -37,11 +37,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="settings"
+        name="lift"
         options={{
-          title: "Settings",
+          title: "Lift",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="gearshape.fill" color={color} />
+            <IconSymbol size={28} name="truck.box.fill" color={color} />
           ),
           // Hide the tab on web it doesn't support Bluetooth API
           ...(Platform.OS === "web" && { href: null }),

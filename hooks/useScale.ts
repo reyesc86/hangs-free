@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Buffer } from "buffer";
-import { BleManager } from "react-native-ble-plx";
+import { BleError, BleManager, Device } from "react-native-ble-plx";
 
 interface WeightData {
   weight: number;
@@ -11,17 +11,17 @@ const getWeightData = (manufacturerData: string) => {
   try {
     const data = Array.from(Buffer.from(manufacturerData, "base64"));
 
-    console.log("=== Weight Calculation ===");
-    console.log(`Byte 12: ${data[12]}`);
-    console.log(`Byte 13: ${data[13]}`);
+    // console.log("=== Weight Calculation ===");
+    // console.log(`Byte 12: ${data[12]}`);
+    // console.log(`Byte 13: ${data[13]}`);
 
     // Convert two bytes to a 16-bit integer (big-endian)
     const weight = (data[12] * 256 + data[13]) / 100;
     const isStable = data[16] === 1; // From STABLE_OFFSET in iOS code
 
-    console.log(`Result: ${weight}${isStable ? " (stable)" : " (unstable)"}`);
-    console.log("Full data:", data);
-    console.log("========================");
+    // console.log(`Result: ${weight}${isStable ? " (stable)" : " (unstable)"}`);
+    // console.log("Full data:", data);
+    // console.log("========================");
 
     return { weight, unit: "kg" } as WeightData; // iOS code doesn't show unit checking
   } catch (e) {
@@ -29,28 +29,57 @@ const getWeightData = (manufacturerData: string) => {
   }
 };
 
+export interface WeightDataWithMax extends WeightData {
+  maxWeight: number;
+}
+
+const initialWeightData: WeightDataWithMax = {
+  weight: 0,
+  maxWeight: 0,
+  unit: "kg",
+};
+
 export const useScale = () => {
-  const [weightData, setWeightData] = useState<WeightData | null>(null);
+  const [weightData, setWeightData] =
+    useState<WeightDataWithMax>(initialWeightData);
+
+  const reset = () => {
+    setWeightData(initialWeightData);
+  };
 
   const bleManager = new BleManager();
 
-  const subscribeToWeightData = () =>
-    bleManager.startDeviceScan(null, null, (error, device) => {
-      if (error) {
-        console.log("Scan error:", error);
-        return;
+  const scan = (error: BleError | null, device: Device | null) => {
+    if (error) {
+      console.log("Scan error:", error);
+      return;
+    }
+
+    const manufacturerData = device?.manufacturerData;
+
+    if (manufacturerData && device?.name?.includes("IF_B7")) {
+      const data = getWeightData(manufacturerData);
+
+      if (data) {
+        setWeightData((prevState) => ({
+          unit: data.unit,
+          weight: data.weight,
+          maxWeight:
+            data.weight > prevState.maxWeight
+              ? data.weight
+              : prevState.maxWeight,
+        }));
       }
+    }
+  };
 
-      const manufacturerData = device?.manufacturerData;
+  useEffect(() => {
+    bleManager.startDeviceScan(null, null, scan);
 
-      if (manufacturerData && device?.name?.includes("IF_B7")) {
-        const weightData = getWeightData(manufacturerData);
+    return () => {
+      bleManager.stopDeviceScan();
+    };
+  }, []);
 
-        if (weightData) {
-          setWeightData(weightData);
-        }
-      }
-    });
-
-  return { bleManager, weightData, subscribeToWeightData };
+  return { weightData, reset };
 };
