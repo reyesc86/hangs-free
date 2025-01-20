@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'climbing-lifting-scale-app'
+rootProject.name = 'hangs-free'
 
 dependencyResolutionManagement {
   versionCatalogs {

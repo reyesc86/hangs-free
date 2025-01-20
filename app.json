@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "climbing-lifting-scale-app",
-    "slug": "climbing-lifting-scale-app",
+    "name": "hangs-free",
+    "slug": "hangs-free",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.rbatsenko.climbing-lifting-scale-app"
+      "bundleIdentifier": "com.rbatsenko.hangsfree"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +22,7 @@
         "android.permission.BLUETOOTH_ADMIN",
         "android.permission.BLUETOOTH_CONNECT"
       ],
-      "package": "com.rbatsenko.climbingliftingscaleapp"
+      "package": "com.rbatsenko.hangsfree"
     },
     "web": {
       "bundler": "metro",

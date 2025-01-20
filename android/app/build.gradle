@@ -86,9 +86,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.rbatsenko.climbingliftingscaleapp'
+    namespace 'com.rbatsenko.hangsfree'
     defaultConfig {
-        applicationId 'com.rbatsenko.climbingliftingscaleapp'
+        applicationId 'com.rbatsenko.hangsfree'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

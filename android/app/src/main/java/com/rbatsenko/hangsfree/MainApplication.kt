@@ -1,4 +1,4 @@
-package com.rbatsenko.climbingliftingscaleapp
+package com.rbatsenko.hangsfree
 
 import android.app.Application
 import android.content.res.Configuration

@@ -7,7 +7,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>climbing-lifting-scale-app</string>
+    <string>hangs-free</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIdentifier</key>
@@ -28,13 +28,13 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>myapp</string>
-          <string>com.rbatsenko.climbing-lifting-scale-app</string>
+          <string>com.rbatsenko.hangsfree</string>
         </array>
       </dict>
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>exp+climbing-lifting-scale-app</string>
+          <string>exp+hangs-free</string>
         </array>
       </dict>
     </array>

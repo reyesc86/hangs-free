@@ -1,4 +1,4 @@
-package com.rbatsenko.climbingliftingscaleapp
+package com.rbatsenko.hangsfree
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
