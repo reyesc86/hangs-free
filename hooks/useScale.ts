@@ -33,6 +33,11 @@ export interface WeightDataWithMax extends WeightData {
   maxWeight: number;
 }
 
+export interface WeightDataPoint {
+  weight: number;
+  timestamp: number;
+}
+
 const initialWeightData: WeightDataWithMax = {
   weight: 0,
   maxWeight: 0,
@@ -42,7 +47,9 @@ const initialWeightData: WeightDataWithMax = {
 export const useScale = () => {
   const [weightData, setWeightData] =
     useState<WeightDataWithMax>(initialWeightData);
-  const [weightDataPoints, setWeightDataPoints] = useState<number[]>([]);
+  const [weightDataPoints, setWeightDataPoints] = useState<WeightDataPoint[]>(
+    []
+  );
 
   const reset = () => {
     setWeightData(initialWeightData);
@@ -70,7 +77,10 @@ export const useScale = () => {
               ? data.weight
               : prevState.maxWeight,
         }));
-        setWeightDataPoints((prev) => [...prev, data.weight]);
+        setWeightDataPoints((prev) => [
+          ...prev,
+          { weight: data.weight, timestamp: Date.now() },
+        ]);
       }
     }
   };

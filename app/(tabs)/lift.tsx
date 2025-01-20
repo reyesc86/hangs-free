@@ -3,9 +3,11 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { useScale, WeightDataWithMax } from "@/hooks/useScale";
+import { useScale, WeightDataPoint, WeightDataWithMax } from "@/hooks/useScale";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { useEffect, useState } from "react";
+import { LineGraph } from "react-native-graph";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 const initialWeightData: WeightDataWithMax = {
   weight: 0,
@@ -18,20 +20,76 @@ type HandData = {
   right: WeightDataWithMax;
 };
 
+type CycleData = { left: WeightDataPoint[]; right: WeightDataPoint[] };
+
 export default function Settings() {
+  const colorScheme = useColorScheme() ?? "light";
+  const isLight = colorScheme === "light";
   const [selectedHand, setSelectedHand] = useState<"left" | "right">("left");
   const [handData, setHandData] = useState<HandData>({
     left: initialWeightData,
     right: initialWeightData,
   });
 
-  const { weightData, weightDataPoints, reset } = useScale();
-  console.log(weightDataPoints);
+  const [cycleStarted, setCycleStarted] = useState(false);
+  const [cycleData, setCycleData] = useState<CycleData>({
+    left: [],
+    right: [],
+  });
+  const [currentPoint, setCurrentPoint] = useState<WeightDataPoint | null>(
+    null
+  );
+  // const maxPoint = useMemo(
+  //   () =>
+  //     cycleData.reduce(
+  //       (prev, current) => (prev.weight > current.weight ? prev : current),
+  //       { weight: 0, timestamp: 0 }
+  //     ),
+  //   [cycleData]
+  // );
 
-  const isIpad = Platform.OS === "ios" && Platform.isPad;
+  // useEffect(() => {
+  //   console.log("Cycle Data:", JSON.stringify(cycleData, null, 2));
+  // }, [cycleData]);
+
+  const { weightData, weightDataPoints, reset } = useScale();
 
   useEffect(() => {
-    if (weightData) {
+    if (weightData && weightDataPoints.length > 0) {
+      const currentWeight = weightData.weight;
+      const latestPoint = weightDataPoints[weightDataPoints.length - 1];
+
+      // Detect cycle start (transition from 0 to some weight)
+      if (!cycleStarted && currentWeight > 1) {
+        setCycleStarted(true);
+        // Record cycle start with timestamp
+        setCycleData((prev) => ({
+          ...prev,
+          [selectedHand]: [{ weight: 0, timestamp: latestPoint.timestamp }],
+        }));
+      }
+
+      // During cycle, record points
+      if (cycleStarted) {
+        setCycleData((prev) => ({
+          ...prev,
+          [selectedHand]: [...prev[selectedHand], latestPoint],
+        }));
+      }
+
+      // Detect cycle end (return to 0 after having some weight)
+      if (cycleStarted && currentWeight < 1) {
+        setCycleStarted(false);
+        // Record cycle end with timestamp
+        setCycleData((prev) => ({
+          ...prev,
+          [selectedHand]: [
+            ...prev[selectedHand],
+            { weight: 0, timestamp: latestPoint.timestamp },
+          ],
+        }));
+      }
+
       setHandData((prev) => ({
         ...prev,
         [selectedHand]: {
@@ -40,17 +98,37 @@ export default function Settings() {
         },
       }));
     }
-  }, [weightData, selectedHand]);
+  }, [weightData, weightDataPoints, selectedHand]);
 
   const currentData = handData[selectedHand];
 
-  const handleReset = () => {
+  const handleResetHand = () => {
     setHandData((prev) => ({
       ...prev,
       [selectedHand]: initialWeightData,
     }));
+    setCycleStarted(false);
+    setCycleData((prev) => ({
+      ...prev,
+      [selectedHand]: [],
+    }));
     reset();
   };
+
+  const handleResetAll = () => {
+    setHandData({
+      left: initialWeightData,
+      right: initialWeightData,
+    });
+    setCycleStarted(false);
+    setCycleData({
+      left: [],
+      right: [],
+    });
+    reset();
+  };
+
+  const isIpad = Platform.OS === "ios" && Platform.isPad;
 
   return (
     <ParallaxScrollView
@@ -88,19 +166,64 @@ export default function Settings() {
         </ThemedText>
       </ThemedView>
 
-      <Pressable
-        style={({ pressed }) => [
-          {
-            backgroundColor: pressed
-              ? "rgba(0, 122, 255, 0.5)"
-              : "rgb(0, 122, 255)",
-          },
-          styles.resetCycleButton,
-        ]}
-        onPress={handleReset}
-      >
-        <Text style={styles.resetCycleText}>Reset</Text>
-      </Pressable>
+      <ThemedView style={{ alignItems: "center" }}>
+        {cycleData[selectedHand].length > 0 && currentPoint && (
+          <ThemedText>
+            {currentPoint.weight}
+            {currentData.unit} at{" "}
+            {new Date(currentPoint.timestamp).toLocaleString("pl-PL", {
+              fractionalSecondDigits: 3,
+            })}
+          </ThemedText>
+        )}
+        {cycleData[selectedHand].length >= 2 && (
+          <LineGraph
+            points={cycleData[selectedHand].map((point) => ({
+              value: point.weight,
+              date: new Date(point.timestamp),
+            }))}
+            animated
+            enablePanGesture
+            enableIndicator
+            panGestureDelay={0}
+            onPointSelected={(point) =>
+              setCurrentPoint({
+                weight: point.value,
+                timestamp: point.date.getTime(),
+              })
+            }
+            // TopAxisLabel={() => <ThemedText>{maxPoint.weight}</ThemedText>}
+            // BottomAxisLabel={() => <ThemedText>0</ThemedText>}
+            color={isLight ? "#000000" : "#FFFFFF"}
+            verticalPadding={12}
+            horizontalPadding={12}
+            enableFadeInMask
+            style={{
+              alignSelf: "center",
+              width: "100%",
+              height: isIpad ? 360 : 200,
+              // aspectRatio: 1.4,
+              // margin: 8,
+            }}
+          />
+        )}
+      </ThemedView>
+
+      <ThemedView style={styles.resetCycleContainer}>
+        <Pressable
+          style={({ pressed }) => [
+            {
+              backgroundColor: pressed
+                ? "rgba(0, 122, 255, 0.3)"
+                : "rgba(0, 122, 255, 0.6)",
+            },
+            styles.resetCycleButton,
+          ]}
+          onPress={handleResetHand}
+        >
+          <Text style={styles.resetCycleText}>Reset hand</Text>
+        </Pressable>
+      </ThemedView>
 
       <ThemedView style={styles.summaryContainer}>
         <ThemedText style={styles.summaryTitle}>Summary max</ThemedText>
@@ -114,6 +237,19 @@ export default function Settings() {
             {handData.right.unit}
           </ThemedText>
         </ThemedView>
+        <Pressable
+          style={({ pressed }) => [
+            {
+              backgroundColor: pressed
+                ? "rgba(0, 122, 255, 0.5)"
+                : "rgb(0, 122, 255)",
+            },
+            styles.resetAllButton,
+          ]}
+          onPress={handleResetAll}
+        >
+          <Text style={styles.resetCycleText}>Reset</Text>
+        </Pressable>
       </ThemedView>
     </ParallaxScrollView>
   );
@@ -131,8 +267,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   segmentContainer: {
-    padding: 20,
-    paddingBottom: 0,
+    // paddingTop: 8,
+    // paddingBottom: 0,
   },
   segment: {
     marginBottom: 10,
@@ -140,7 +276,7 @@ const styles = StyleSheet.create({
   weightContainer: {
     alignItems: "center",
     justifyContent: "center",
-    padding: 4,
+    padding: 0,
   },
   weightText: {
     fontSize: 40,
@@ -152,12 +288,17 @@ const styles = StyleSheet.create({
     lineHeight: 72,
     fontWeight: "bold",
   },
+  resetCycleContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
   resetCycleButton: {
     alignItems: "center",
     justifyContent: "center",
     padding: 16,
-    borderRadius: 5,
-    margin: 20,
+    borderRadius: 12,
+    margin: 12,
+    width: 160,
   },
   resetCycleText: {
     color: "#FFFFFF",
@@ -165,8 +306,8 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   summaryContainer: {
-    marginTop: 20,
-    padding: 32,
+    marginTop: 8,
+    padding: 8,
     alignItems: "center",
   },
   summaryTitle: {
@@ -182,5 +323,12 @@ const styles = StyleSheet.create({
   summaryText: {
     fontSize: 24,
     lineHeight: 24,
+  },
+  resetAllButton: {
+    alignItems: "center",
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 24,
+    width: "100%",
   },
 });

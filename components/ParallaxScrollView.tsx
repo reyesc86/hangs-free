@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from "react";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedRef,
@@ -47,6 +47,7 @@ export default function ParallaxScrollView({
       ],
     };
   });
+  const isIpad = Platform.OS === "ios" && Platform.isPad;
 
   return (
     <ThemedView style={styles.container}>
@@ -65,7 +66,11 @@ export default function ParallaxScrollView({
         >
           {headerImage}
         </Animated.View>
-        <ThemedView style={styles.content}>{children}</ThemedView>
+        <ThemedView
+          style={{ ...styles.content, paddingVertical: isIpad ? 16 : 32 }}
+        >
+          {children}
+        </ThemedView>
       </Animated.ScrollView>
     </ThemedView>
   );
@@ -81,8 +86,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    marginTop: 80,
-    padding: 32,
+    marginTop: 40,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
     gap: 16,
     overflow: "hidden",
   },
