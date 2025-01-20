@@ -25,7 +25,9 @@ export default function Settings() {
     right: initialWeightData,
   });
 
-  const { weightData, reset } = useScale();
+  const { weightData, weightDataPoints, reset } = useScale();
+  console.log(weightDataPoints);
+
   const isIpad = Platform.OS === "ios" && Platform.isPad;
 
   useEffect(() => {

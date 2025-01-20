@@ -42,6 +42,7 @@ const initialWeightData: WeightDataWithMax = {
 export const useScale = () => {
   const [weightData, setWeightData] =
     useState<WeightDataWithMax>(initialWeightData);
+  const [weightDataPoints, setWeightDataPoints] = useState<number[]>([]);
 
   const reset = () => {
     setWeightData(initialWeightData);
@@ -69,6 +70,7 @@ export const useScale = () => {
               ? data.weight
               : prevState.maxWeight,
         }));
+        setWeightDataPoints((prev) => [...prev, data.weight]);
       }
     }
   };
@@ -81,5 +83,5 @@ export const useScale = () => {
     };
   }, []);
 
-  return { weightData, reset };
+  return { weightData, weightDataPoints, reset };
 };
