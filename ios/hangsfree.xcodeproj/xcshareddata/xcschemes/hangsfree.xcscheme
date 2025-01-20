@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "hangsfree.app"
-               BlueprintName = "hangsfree"
-               ReferencedContainer = "container:hangsfree.xcodeproj">
+               BuildableName = "HangsFree.app"
+               BlueprintName = "HangsFree"
+               ReferencedContainer = "container:HangsFree.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "hangsfreeTests.xctest"
-               BlueprintName = "hangsfreeTests"
-               ReferencedContainer = "container:hangsfree.xcodeproj">
+               BuildableName = "HangsFreeTests.xctest"
+               BlueprintName = "HangsFreeTests"
+               ReferencedContainer = "container:HangsFree.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "hangsfree.app"
-            BlueprintName = "hangsfree"
-            ReferencedContainer = "container:hangsfree.xcodeproj">
+            BuildableName = "HangsFree.app"
+            BlueprintName = "HangsFree"
+            ReferencedContainer = "container:HangsFree.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "hangsfree.app"
-            BlueprintName = "hangsfree"
-            ReferencedContainer = "container:hangsfree.xcodeproj">
+            BuildableName = "HangsFree.app"
+            BlueprintName = "HangsFree"
+            ReferencedContainer = "container:HangsFree.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
