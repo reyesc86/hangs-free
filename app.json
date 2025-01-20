@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "hangs-free",
+    "name": "Hangs Free",
     "slug": "hangs-free",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -55,6 +55,9 @@
     "extra": {
       "router": {
         "origin": false
+      },
+      "eas": {
+        "projectId": "9ebbc3d0-7580-4293-83a8-b407918c2d53"
       }
     }
   }
