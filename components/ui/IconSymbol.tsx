@@ -12,6 +12,7 @@ const MAPPING = {
   "house.fill": "home",
   "gearshape.fill": "settings",
   "chart.line.uptrend.xyaxis": "trending-up",
+  "truck.box.fill": "luggage",
   "paperplane.fill": "send",
   "chevron.left.forwardslash.chevron.right": "code",
   "chevron.right": "chevron-right",
