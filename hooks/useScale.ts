@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Buffer } from "buffer";
-import { BleError, BleManager, Device } from "react-native-ble-plx";
+import { BleError, Device } from "react-native-ble-plx";
+import { useBLE } from "./useBLE";
 
 interface WeightData {
   weight: number;
@@ -50,12 +51,11 @@ export const useScale = () => {
   const [weightDataPoints, setWeightDataPoints] = useState<WeightDataPoint[]>(
     []
   );
+  const { bleManager } = useBLE();
 
   const reset = () => {
     setWeightData(initialWeightData);
   };
-
-  const bleManager = new BleManager();
 
   const scan = (error: BleError | null, device: Device | null) => {
     if (error) {
