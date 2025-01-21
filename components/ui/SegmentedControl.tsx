@@ -24,7 +24,7 @@ export function SegmentedControl({
         styles.container,
         style,
         {
-          backgroundColor: isDark ? "#1C1C1E" : "#E9E9EB",
+          backgroundColor: isDark ? "#2C2C2E" : "#E9E9EB",
         },
       ]}
     >
@@ -35,7 +35,7 @@ export function SegmentedControl({
             styles.segment,
             selectedIndex === index && [
               styles.selectedSegment,
-              { backgroundColor: isDark ? "#2C2C2E" : "#FFFFFF" },
+              { backgroundColor: isDark ? "#4C4C4E" : "#FFFFFF" },
             ],
           ]}
           onPress={() => onChange(index)}
@@ -57,12 +57,14 @@ export function SegmentedControl({
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    borderRadius: 8,
-    padding: 2,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    padding: 0,
   },
   segment: {
     flex: 1,
-    paddingVertical: 12,
+    paddingTop: 16,
+    paddingBottom: 12,
     paddingHorizontal: 16,
     borderRadius: 6,
   },
@@ -71,7 +73,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: 1.5,
-    elevation: 2,
+    elevation: 10,
+    zIndex: 10,
   },
   text: {
     textAlign: "center",

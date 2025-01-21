@@ -9,12 +9,7 @@ export default function HomeScreen() {
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
-        />
-      }
+      headerImage={<Image style={styles.reactLogo} />}
     >
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome!</ThemedText>
@@ -31,21 +26,23 @@ export default function HomeScreen() {
             device is on.
           </ThemedText>
         </ThemedView>
-        <ThemedText type="subtitle">Step 2: Measure Max force</ThemedText>
-        <ThemedText>
-          Use the app to measure your maximum force. It will remember the
-          highest value from your try. We don't support saving results for now,
-          so make sure you note them down somewhere.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Analyze Recent Cycle</ThemedText>
-        <ThemedText>
-          View the recent cycle graph to analyze your weight (force) changes
-          over time. The graph provides a visual representation of your weight
-          data points. When there is no data yet, the graph shows example data
-          points.
-        </ThemedText>
+        <ThemedView style={styles.stepContainer}>
+          <ThemedText type="subtitle">Step 2: Measure Max force</ThemedText>
+          <ThemedText>
+            Use the app to measure your maximum force. It will remember the
+            highest value from your try. We don't support saving results for
+            now, so make sure you note them down somewhere.
+          </ThemedText>
+        </ThemedView>
+        <ThemedView style={styles.stepContainer}>
+          <ThemedText type="subtitle">Step 3: Analyze Recent Cycle</ThemedText>
+          <ThemedText>
+            View the recent cycle graph to analyze your weight (force) changes
+            over time. The graph provides a visual representation of your weight
+            data points. When there is no data yet, the graph shows example data
+            points.
+          </ThemedText>
+        </ThemedView>
       </ThemedView>
     </ParallaxScrollView>
   );
@@ -56,11 +53,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    marginVertical: 16,
+    marginVertical: 24,
   },
   stepContainer: {
     gap: 8,
-    marginBottom: 8,
+    marginBottom: 16,
   },
   reactLogo: {
     height: 178,

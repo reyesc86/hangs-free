@@ -1,13 +1,15 @@
-import { StyleSheet, Pressable, Text, Platform } from "react-native";
+import { StyleSheet, Pressable, Text, Platform, TextInput } from "react-native";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useScale, WeightDataPoint, WeightDataWithMax } from "@/hooks/useScale";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LineGraph } from "react-native-graph";
 import { useColorScheme } from "@/hooks/useColorScheme";
+
+const getPercentage = (value: number, base: number) => (value / base) * 100;
 
 const initialWeightData: WeightDataWithMax = {
   weight: 0,
@@ -55,6 +57,7 @@ export default function Settings() {
   const [currentPoint, setCurrentPoint] = useState<WeightDataPoint | null>(
     initialCycleData.left[0]
   );
+  const [userWeight, setUserWeight] = useState("");
   // const maxPoint = useMemo(
   //   () =>
   //     cycleData.reduce(
@@ -143,6 +146,28 @@ export default function Settings() {
 
   const isIpad = Platform.OS === "ios" && Platform.isPad;
 
+  const percentageOfUserWeightLeft = useMemo(() => {
+    if (userWeight && handData.left.maxWeight) {
+      const percentage = getPercentage(
+        handData.left.maxWeight,
+        parseFloat(userWeight)
+      ).toFixed(1);
+      return `(${percentage}%)`;
+    }
+    return "";
+  }, [userWeight, currentData]);
+
+  const percentageOfUserWeightRight = useMemo(() => {
+    if (userWeight && handData.right.maxWeight) {
+      const percentage = getPercentage(
+        handData.right.maxWeight,
+        parseFloat(userWeight)
+      ).toFixed(1);
+      return `(${percentage}%)`;
+    }
+    return "";
+  }, [userWeight, currentData]);
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
@@ -155,6 +180,20 @@ export default function Settings() {
         />
       }
     >
+      <ThemedView style={styles.userWeightContainer}>
+        <ThemedText>Your weight: </ThemedText>
+        <TextInput
+          style={{
+            ...styles.input,
+            borderColor: isLight ? "#000000" : "#FFFFFF",
+            color: isLight ? "#000000" : "#FFFFFF",
+          }}
+          onChangeText={setUserWeight}
+          value={userWeight}
+          placeholder="Weight"
+          keyboardType="numeric"
+        />
+      </ThemedView>
       <ThemedView style={styles.segmentContainer}>
         <SegmentedControl
           values={["Left Hand", "Right Hand"]}
@@ -163,99 +202,122 @@ export default function Settings() {
           style={styles.segment}
         />
       </ThemedView>
-      <ThemedView style={styles.weightContainer}>
-        <ThemedText style={isIpad ? styles.weightTextIpad : styles.weightText}>
-          {currentData
-            ? `${currentData.weight}${currentData.unit}`
-            : "No reading"}
-        </ThemedText>
-      </ThemedView>
 
-      <ThemedView style={styles.weightContainer}>
-        <ThemedText style={isIpad ? styles.weightTextIpad : styles.weightText}>
-          {currentData
-            ? `Max: ${currentData.maxWeight}${currentData.unit}`
-            : "No max weight"}
-        </ThemedText>
-      </ThemedView>
-
-      <ThemedView style={{ alignItems: "center" }}>
-        {cycleData[selectedHand].length > 0 && currentPoint && (
-          <ThemedText>
-            {currentPoint.weight}
-            {currentData.unit} at{" "}
-            {new Date(currentPoint.timestamp).toLocaleString("pl-PL", {
-              fractionalSecondDigits: 3,
-            })}
+      <ThemedView
+        style={{
+          ...styles.handContainer,
+          backgroundColor: isLight ? "#E9E9EB" : "#2C2C2E",
+        }}
+      >
+        <ThemedView style={{ ...styles.weightContainer, marginBottom: 12 }}>
+          <ThemedText
+            style={isIpad ? styles.weightTextIpad : styles.weightText}
+          >
+            {currentData
+              ? `${currentData.weight}${currentData.unit}`
+              : "No reading"}
           </ThemedText>
-        )}
-        {cycleData[selectedHand].length >= 2 && (
-          <LineGraph
-            points={cycleData[selectedHand].map((point) => ({
-              value: point.weight,
-              date: new Date(point.timestamp),
-            }))}
-            animated
-            enablePanGesture
-            enableIndicator
-            panGestureDelay={0}
-            onPointSelected={(point) =>
-              setCurrentPoint({
-                weight: point.value,
-                timestamp: point.date.getTime(),
-              })
-            }
-            // TopAxisLabel={() => <ThemedText>{maxPoint.weight}</ThemedText>}
-            // BottomAxisLabel={() => <ThemedText>0</ThemedText>}
-            color={isLight ? "#000000" : "#FFFFFF"}
-            verticalPadding={12}
-            horizontalPadding={12}
-            enableFadeInMask
-            style={{
-              alignSelf: "center",
-              width: "100%",
-              height: isIpad ? 360 : 200,
-              // aspectRatio: 1.4,
-              // margin: 8,
-            }}
-          />
-        )}
-      </ThemedView>
+        </ThemedView>
 
-      <ThemedView style={styles.resetCycleContainer}>
-        <Pressable
-          style={({ pressed }) => [
-            {
-              backgroundColor: pressed
-                ? "rgba(0, 122, 255, 0.3)"
-                : "rgba(0, 122, 255, 0.6)",
-            },
-            styles.resetCycleButton,
-          ]}
-          onPress={handleResetHand}
-        >
-          <Text style={styles.resetCycleText}>Reset hand</Text>
-        </Pressable>
+        <ThemedView style={{ ...styles.weightContainer, marginBottom: 8 }}>
+          <ThemedText
+            style={isIpad ? styles.weightTextIpad : styles.weightText}
+          >
+            {currentData
+              ? `Max: ${currentData.maxWeight}${currentData.unit}`
+              : "No max weight"}
+          </ThemedText>
+        </ThemedView>
+
+        <ThemedView style={styles.chartContainer}>
+          {cycleData[selectedHand].length > 0 && currentPoint && (
+            <ThemedText>
+              {currentPoint.weight}
+              {currentData.unit} at{" "}
+              {new Date(currentPoint.timestamp).toLocaleString("pl-PL", {
+                fractionalSecondDigits: 3,
+              })}
+            </ThemedText>
+          )}
+          {cycleData[selectedHand].length >= 2 && (
+            <LineGraph
+              points={cycleData[selectedHand].map((point) => ({
+                value: point.weight,
+                date: new Date(point.timestamp),
+              }))}
+              animated
+              enablePanGesture
+              enableIndicator
+              panGestureDelay={0}
+              onPointSelected={(point) =>
+                setCurrentPoint({
+                  weight: point.value,
+                  timestamp: point.date.getTime(),
+                })
+              }
+              // TopAxisLabel={() => <ThemedText>{maxPoint.weight}</ThemedText>}
+              // BottomAxisLabel={() => <ThemedText>0</ThemedText>}
+              color={isLight ? "#000000" : "#FFFFFF"}
+              verticalPadding={12}
+              horizontalPadding={12}
+              enableFadeInMask
+              style={{
+                alignSelf: "center",
+                width: "100%",
+                height: isIpad ? 360 : 200,
+                // aspectRatio: 1.4,
+                // margin: 8,
+                backgroundColor: "transparent",
+              }}
+            />
+          )}
+        </ThemedView>
+
+        <ThemedView style={styles.resetCycleContainer}>
+          <Pressable
+            style={({ pressed }) => [
+              {
+                backgroundColor: pressed
+                  ? "rgba(212, 52, 76, 0.55)"
+                  : "rgba(212, 52, 76, 0.85)",
+              },
+              styles.resetCycleButton,
+            ]}
+            onPress={handleResetHand}
+          >
+            <Text style={styles.resetCycleText}>Reset hand</Text>
+          </Pressable>
+        </ThemedView>
       </ThemedView>
 
       <ThemedView style={styles.summaryContainer}>
         <ThemedText style={styles.summaryTitle}>Summary max</ThemedText>
         <ThemedView style={styles.summaryRow}>
-          <ThemedText style={styles.summaryText}>
-            Left: {handData.left.maxWeight}
-            {handData.left.unit}
-          </ThemedText>
-          <ThemedText style={styles.summaryText}>
-            Right: {handData.right.maxWeight}
-            {handData.right.unit}
-          </ThemedText>
+          <ThemedView style={{ alignItems: "center" }}>
+            <ThemedText style={styles.summaryText}>
+              Left: {handData.left.maxWeight}
+              {handData.left.unit}{" "}
+            </ThemedText>
+            <ThemedText style={styles.percentage}>
+              {percentageOfUserWeightLeft}
+            </ThemedText>
+          </ThemedView>
+          <ThemedView style={{ alignItems: "center" }}>
+            <ThemedText style={styles.summaryText}>
+              Right: {handData.right.maxWeight}
+              {handData.right.unit}
+            </ThemedText>
+            <ThemedText style={styles.percentage}>
+              {percentageOfUserWeightRight}
+            </ThemedText>
+          </ThemedView>
         </ThemedView>
         <Pressable
           style={({ pressed }) => [
             {
               backgroundColor: pressed
-                ? "rgba(0, 122, 255, 0.5)"
-                : "rgb(0, 122, 255)",
+                ? "rgba(212, 52, 76, 0.5)"
+                : "rgb(212, 52, 76)",
             },
             styles.resetAllButton,
           ]}
@@ -279,17 +341,30 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
   },
+  userWeightContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 8,
+  },
   segmentContainer: {
     // paddingTop: 8,
     // paddingBottom: 0,
   },
   segment: {
-    marginBottom: 10,
+    // marginBottom: 10,
+  },
+  handContainer: {
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    paddingTop: 16,
+    elevation: 1,
   },
   weightContainer: {
     alignItems: "center",
     justifyContent: "center",
     padding: 0,
+    backgroundColor: "transparent",
   },
   weightText: {
     fontSize: 40,
@@ -301,9 +376,11 @@ const styles = StyleSheet.create({
     lineHeight: 72,
     fontWeight: "bold",
   },
+  chartContainer: { alignItems: "center", backgroundColor: "transparent" },
   resetCycleContainer: {
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "transparent",
   },
   resetCycleButton: {
     alignItems: "center",
@@ -336,6 +413,14 @@ const styles = StyleSheet.create({
   summaryText: {
     fontSize: 24,
     lineHeight: 24,
+  },
+  percentage: { marginTop: 4, fontSize: 16, lineHeight: 16 },
+  input: {
+    height: 40,
+    // margin: 12,
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 8,
   },
   resetAllButton: {
     alignItems: "center",

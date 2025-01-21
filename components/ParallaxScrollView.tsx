@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
     paddingVertical: 32,
     paddingHorizontal: 24,
-    gap: 16,
+    gap: 0,
     overflow: "hidden",
   },
 });
