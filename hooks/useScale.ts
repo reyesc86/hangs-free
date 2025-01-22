@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Buffer } from "buffer";
-import { BleError, Device } from "react-native-ble-plx";
+import { BleError, Device, ScanMode } from "react-native-ble-plx";
 import { useBLE } from "./useBLE";
+import { Platform } from "react-native";
 
 interface WeightData {
   weight: number;
@@ -52,6 +53,7 @@ export const useScale = () => {
     []
   );
   const { bleManager } = useBLE();
+  const isAndroid = Platform.OS === "android";
 
   const reset = () => {
     setWeightData(initialWeightData);
@@ -86,7 +88,11 @@ export const useScale = () => {
   };
 
   useEffect(() => {
-    bleManager.startDeviceScan(null, null, scan);
+    bleManager.startDeviceScan(
+      null,
+      isAndroid ? { scanMode: ScanMode.LowLatency } : null,
+      scan
+    );
 
     return () => {
       bleManager.stopDeviceScan();
