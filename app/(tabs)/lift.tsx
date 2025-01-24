@@ -245,9 +245,9 @@ export default function Settings() {
                 value: point.weight,
                 date: new Date(point.timestamp),
               }))}
-              animated
-              enablePanGesture
-              enableIndicator
+              animated={!cycleStarted}
+              enablePanGesture={!cycleStarted}
+              enableIndicator={!cycleStarted}
               panGestureDelay={0}
               onPointSelected={(point) =>
                 setCurrentPoint({
