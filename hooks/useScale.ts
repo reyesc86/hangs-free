@@ -52,7 +52,7 @@ export const useScale = () => {
   const [weightDataPoints, setWeightDataPoints] = useState<WeightDataPoint[]>(
     []
   );
-  const { bleManager } = useBLE();
+  const { bleManager, bleInitialized } = useBLE();
   const isAndroid = Platform.OS === "android";
 
   const reset = () => {
@@ -88,6 +88,8 @@ export const useScale = () => {
   };
 
   useEffect(() => {
+    if (!bleInitialized) return;
+
     bleManager.startDeviceScan(
       null,
       isAndroid ? { scanMode: ScanMode.LowLatency } : null,
@@ -97,7 +99,7 @@ export const useScale = () => {
     return () => {
       bleManager.stopDeviceScan();
     };
-  }, []);
+  }, [bleInitialized]);
 
   return { weightData, weightDataPoints, reset };
 };

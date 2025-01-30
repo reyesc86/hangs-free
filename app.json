@@ -2,8 +2,8 @@
   "expo": {
     "name": "Hangs Free",
     "slug": "hangs-free",
-    "version": "0.1.6",
-    "orientation": "portrait",
+    "version": "0.1.7",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
@@ -15,7 +15,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#642b64"
       },
       "permissions": [
         "android.permission.BLUETOOTH",

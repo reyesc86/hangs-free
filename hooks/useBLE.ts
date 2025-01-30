@@ -1,76 +1,73 @@
+import { useEffect, useState } from "react";
 import { PermissionsAndroid, Platform } from "react-native";
-import * as ExpoDevice from "expo-device";
 import { BleManager } from "react-native-ble-plx";
-import { useEffect } from "react";
 
 const bleManager = new BleManager();
 
-export const useBLE = () => {
-  const requestAndroid31Permissions = async () => {
-    const bluetoothScanPermission = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-      {
-        title: "Location Permission",
-        message: "Bluetooth Low Energy requires Location",
-        buttonPositive: "OK",
-      }
-    );
-    const bluetoothConnectPermission = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-      {
-        title: "Location Permission",
-        message: "Bluetooth Low Energy requires Location",
-        buttonPositive: "OK",
-      }
-    );
-    const fineLocationPermission = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      {
-        title: "Location Permission",
-        message: "Bluetooth Low Energy requires Location",
-        buttonPositive: "OK",
-      }
-    );
+const requestPermissions = async () => {
+  if (Platform.OS === "ios") {
+    return true;
+  }
 
-    return (
-      bluetoothScanPermission === "granted" &&
-      bluetoothConnectPermission === "granted" &&
-      fineLocationPermission === "granted"
-    );
-  };
+  if (
+    Platform.OS === "android" &&
+    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+  ) {
+    const apiLevel = parseInt(Platform.Version.toString(), 10);
 
-  const requestPermissions = async () => {
-    if (Platform.OS === "android") {
-      if ((ExpoDevice.platformApiLevel ?? -1) < 31) {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          {
-            title: "Location Permission",
-            message: "Bluetooth Low Energy requires Location",
-            buttonPositive: "OK",
-          }
-        );
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } else {
-        const isAndroid31PermissionsGranted =
-          await requestAndroid31Permissions();
-
-        return isAndroid31PermissionsGranted;
-      }
-    } else {
-      return true;
+    if (apiLevel < 31) {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: "Location Permission",
+          message: "Bluetooth Low Energy requires Location",
+          buttonPositive: "OK",
+        }
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
     }
-  };
+    if (
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN &&
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT
+    ) {
+      const result = await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      ]);
+
+      return (
+        result["android.permission.BLUETOOTH_CONNECT"] ===
+          PermissionsAndroid.RESULTS.GRANTED &&
+        result["android.permission.BLUETOOTH_SCAN"] ===
+          PermissionsAndroid.RESULTS.GRANTED &&
+        result["android.permission.ACCESS_FINE_LOCATION"] ===
+          PermissionsAndroid.RESULTS.GRANTED
+      );
+    }
+  }
+
+  return false;
+};
+
+export const useBLE = () => {
+  const [bleInitialized, setBleInitialized] = useState(false);
 
   useEffect(() => {
-    requestPermissions().then((granted) => {
-      if (granted) {
-        console.log("BLE permissions granted");
-      } else {
-        console.log("BLE permissions denied");
+    const initBLE = async () => {
+      try {
+        const isPermissionGranted = await requestPermissions();
+
+        if (isPermissionGranted) {
+          setBleInitialized(true);
+        }
+      } catch (error) {
+        console.error("BLE initialization failed:", error);
       }
-    });
+    };
+
+    initBLE();
   }, []);
 
-  return { bleManager };
+  return { bleInitialized, bleManager };
 };
