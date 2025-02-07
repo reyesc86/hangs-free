@@ -1,94 +1,84 @@
 import { StyleSheet, Pressable, Text, Platform, TextInput } from "react-native";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import ParallaxScrollView from "@/components/common/ParallaxScrollView";
+import { ThemedText } from "@/components/ui/ThemedText";
+import { ThemedView } from "@/components/ui/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { useScale, WeightDataPoint, WeightDataWithMax } from "@/hooks/useScale";
+import { WeightDisplay } from "@/components/WeightDisplay";
+import { useScale } from "@/hooks/useScale";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { LineGraph } from "react-native-graph";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { HandData, HandType, CycleData, WeightDataPoint } from "@/types/weight";
 
 const getPercentage = (value: number, base: number) => (value / base) * 100;
 
-const initialWeightData: WeightDataWithMax = {
-  weight: 0,
-  maxWeight: 0,
-  unit: "kg",
-};
-
-type HandData = {
-  left: WeightDataWithMax;
-  right: WeightDataWithMax;
-};
-
-type CycleData = { left: WeightDataPoint[]; right: WeightDataPoint[] };
-
 const now = Date.now();
-const nowPlus1 = now + 1000;
-const nowPlus2 = now + 2000;
-const nowPlus3 = now + 3000;
-const nowPlus4 = now + 4000;
-
-const initialCycleHandData = [
+const INITIAL_CYCLE_HAND_DATA = [
   { weight: 0, timestamp: now },
-  { weight: 5, timestamp: nowPlus1 },
-  { weight: 10, timestamp: nowPlus2 },
-  { weight: 5, timestamp: nowPlus3 },
-  { weight: 0, timestamp: nowPlus4 },
+  { weight: 5, timestamp: now + 1000 },
+  { weight: 10, timestamp: now + 2000 },
+  { weight: 5, timestamp: now + 3000 },
+  { weight: 0, timestamp: now + 4000 },
 ];
 
-const initialCycleData: CycleData = {
-  left: initialCycleHandData,
-  right: initialCycleHandData,
+const INITIAL_CYCLE_DATA: CycleData = {
+  left: INITIAL_CYCLE_HAND_DATA,
+  right: INITIAL_CYCLE_HAND_DATA,
 };
 
-export default function Settings() {
+const INITIAL_HAND_DATA: HandData = {
+  left: { weight: 0, maxWeight: 0, unit: "kg" },
+  right: { weight: 0, maxWeight: 0, unit: "kg" },
+};
+
+export default function LiftScreen() {
   const colorScheme = useColorScheme() ?? "light";
   const isLight = colorScheme === "light";
-  const [selectedHand, setSelectedHand] = useState<"left" | "right">("left");
-  const [handData, setHandData] = useState<HandData>({
-    left: initialWeightData,
-    right: initialWeightData,
-  });
-
+  const [selectedHand, setSelectedHand] = useState<HandType>("left");
+  const [handData, setHandData] = useState<HandData>(INITIAL_HAND_DATA);
   const [cycleStarted, setCycleStarted] = useState(false);
-  const [cycleData, setCycleData] = useState<CycleData>(initialCycleData);
+  const [cycleData, setCycleData] = useState<CycleData>(INITIAL_CYCLE_DATA);
   const [currentPoint, setCurrentPoint] = useState<WeightDataPoint | null>(
-    initialCycleData.left[0]
+    INITIAL_CYCLE_DATA.left[0]
   );
   const [userWeight, setUserWeight] = useState("");
-  // const maxPoint = useMemo(
-  //   () =>
-  //     cycleData.reduce(
-  //       (prev, current) => (prev.weight > current.weight ? prev : current),
-  //       { weight: 0, timestamp: 0 }
-  //     ),
-  //   [cycleData]
-  // );
-
-  // useEffect(() => {
-  //   console.log("Cycle Data:", JSON.stringify(cycleData, null, 2));
-  // }, [cycleData]);
 
   const { weightData, weightDataPoints, reset } = useScale();
+
+  const handleResetHand = useCallback(() => {
+    setHandData((prev) => ({
+      ...prev,
+      [selectedHand]: INITIAL_HAND_DATA[selectedHand],
+    }));
+    setCycleStarted(false);
+    setCycleData((prev) => ({
+      ...prev,
+      [selectedHand]: INITIAL_CYCLE_HAND_DATA,
+    }));
+    reset();
+  }, [selectedHand, reset]);
+
+  const handleResetAll = useCallback(() => {
+    setHandData(INITIAL_HAND_DATA);
+    setCycleStarted(false);
+    setCycleData(INITIAL_CYCLE_DATA);
+    reset();
+  }, [reset]);
 
   useEffect(() => {
     if (weightData && weightDataPoints.length > 0) {
       const currentWeight = weightData.weight;
       const latestPoint = weightDataPoints[weightDataPoints.length - 1];
 
-      // Detect cycle start (transition from 0 to some weight)
       if (!cycleStarted && currentWeight > 1) {
         setCycleStarted(true);
-        // Record cycle start with timestamp
         setCycleData((prev) => ({
           ...prev,
           [selectedHand]: [{ weight: 0, timestamp: latestPoint.timestamp }],
         }));
       }
 
-      // During cycle, record points
       if (cycleStarted) {
         setCycleData((prev) => ({
           ...prev,
@@ -96,10 +86,8 @@ export default function Settings() {
         }));
       }
 
-      // Detect cycle end (return to 0 after having some weight)
       if (cycleStarted && currentWeight < 1) {
         setCycleStarted(false);
-        // Record cycle end with timestamp
         setCycleData((prev) => ({
           ...prev,
           [selectedHand]: [
@@ -117,56 +105,29 @@ export default function Settings() {
         },
       }));
     }
-  }, [weightData, weightDataPoints, selectedHand]);
+  }, [weightData, weightDataPoints, selectedHand, cycleStarted]);
 
-  const currentData = handData[selectedHand];
-
-  const handleResetHand = () => {
-    setHandData((prev) => ({
-      ...prev,
-      [selectedHand]: initialWeightData,
-    }));
-    setCycleStarted(false);
-    setCycleData((prev) => ({
-      ...prev,
-      [selectedHand]: initialCycleHandData,
-    }));
-    reset();
-  };
-
-  const handleResetAll = () => {
-    setHandData({
-      left: initialWeightData,
-      right: initialWeightData,
-    });
-    setCycleStarted(false);
-    setCycleData(initialCycleData);
-    reset();
-  };
+  const percentages = useMemo(
+    () => ({
+      left:
+        userWeight && handData.left.maxWeight
+          ? `(${getPercentage(
+              handData.left.maxWeight,
+              parseFloat(userWeight)
+            ).toFixed(1)}%)`
+          : "",
+      right:
+        userWeight && handData.right.maxWeight
+          ? `(${getPercentage(
+              handData.right.maxWeight,
+              parseFloat(userWeight)
+            ).toFixed(1)}%)`
+          : "",
+    }),
+    [userWeight, handData]
+  );
 
   const isIpad = Platform.OS === "ios" && Platform.isPad;
-
-  const percentageOfUserWeightLeft = useMemo(() => {
-    if (userWeight && handData.left.maxWeight) {
-      const percentage = getPercentage(
-        handData.left.maxWeight,
-        parseFloat(userWeight)
-      ).toFixed(1);
-      return `(${percentage}%)`;
-    }
-    return "";
-  }, [userWeight, currentData]);
-
-  const percentageOfUserWeightRight = useMemo(() => {
-    if (userWeight && handData.right.maxWeight) {
-      const percentage = getPercentage(
-        handData.right.maxWeight,
-        parseFloat(userWeight)
-      ).toFixed(1);
-      return `(${percentage}%)`;
-    }
-    return "";
-  }, [userWeight, currentData]);
 
   return (
     <ParallaxScrollView
@@ -209,31 +170,13 @@ export default function Settings() {
           backgroundColor: isLight ? "#E9E9EB" : "#2C2C2E",
         }}
       >
-        <ThemedView style={{ ...styles.weightContainer, marginBottom: 12 }}>
-          <ThemedText
-            style={isIpad ? styles.weightTextIpad : styles.weightText}
-          >
-            {currentData
-              ? `${currentData.weight}${currentData.unit}`
-              : "No reading"}
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedView style={{ ...styles.weightContainer, marginBottom: 8 }}>
-          <ThemedText
-            style={isIpad ? styles.weightTextIpad : styles.weightText}
-          >
-            {currentData
-              ? `Max: ${currentData.maxWeight}${currentData.unit}`
-              : "No max weight"}
-          </ThemedText>
-        </ThemedView>
+        <WeightDisplay data={handData[selectedHand]} />
 
         <ThemedView style={styles.chartContainer}>
           {cycleData[selectedHand].length > 0 && currentPoint && (
             <ThemedText>
               {currentPoint.weight}
-              {currentData.unit} at{" "}
+              {handData[selectedHand].unit} at{" "}
               {new Date(currentPoint.timestamp).toLocaleString("pl-PL", {
                 fractionalSecondDigits: 3,
               })}
@@ -255,8 +198,6 @@ export default function Settings() {
                   timestamp: point.date.getTime(),
                 })
               }
-              // TopAxisLabel={() => <ThemedText>{maxPoint.weight}</ThemedText>}
-              // BottomAxisLabel={() => <ThemedText>0</ThemedText>}
               color={isLight ? "#000000" : "#FFFFFF"}
               verticalPadding={12}
               horizontalPadding={12}
@@ -265,8 +206,6 @@ export default function Settings() {
                 alignSelf: "center",
                 width: "100%",
                 height: isIpad ? 360 : 200,
-                // aspectRatio: 1.4,
-                // margin: 8,
                 backgroundColor: "transparent",
               }}
             />
@@ -299,7 +238,7 @@ export default function Settings() {
               {handData.left.unit}{" "}
             </ThemedText>
             <ThemedText style={styles.percentage}>
-              {percentageOfUserWeightLeft}
+              {percentages.left}
             </ThemedText>
           </ThemedView>
           <ThemedView style={{ alignItems: "center" }}>
@@ -308,7 +247,7 @@ export default function Settings() {
               {handData.right.unit}
             </ThemedText>
             <ThemedText style={styles.percentage}>
-              {percentageOfUserWeightRight}
+              {percentages.right}
             </ThemedText>
           </ThemedView>
         </ThemedView>
@@ -347,34 +286,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 8,
   },
-  segmentContainer: {
-    // paddingTop: 8,
-    // paddingBottom: 0,
-  },
-  segment: {
-    // marginBottom: 10,
-  },
+  segmentContainer: {},
+  segment: {},
   handContainer: {
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
     paddingTop: 16,
     elevation: 1,
-  },
-  weightContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 0,
-    backgroundColor: "transparent",
-  },
-  weightText: {
-    fontSize: 40,
-    lineHeight: 40,
-    fontWeight: "bold",
-  },
-  weightTextIpad: {
-    fontSize: 72,
-    lineHeight: 72,
-    fontWeight: "bold",
   },
   chartContainer: { alignItems: "center", backgroundColor: "transparent" },
   resetCycleContainer: {
@@ -417,7 +335,6 @@ const styles = StyleSheet.create({
   percentage: { marginTop: 4, fontSize: 16, lineHeight: 16 },
   input: {
     height: 40,
-    // margin: 12,
     borderWidth: 1,
     borderRadius: 8,
     padding: 8,

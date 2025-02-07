@@ -8,7 +8,7 @@ import Animated, {
   withSequence,
 } from "react-native-reanimated";
 
-import { ThemedText } from "@/components/ThemedText";
+import { ThemedText } from "@/components/ui/ThemedText";
 
 export function HelloWave() {
   const rotationAnimation = useSharedValue(0);
@@ -21,6 +21,7 @@ export function HelloWave() {
       ),
       4 // Run the animation 4 times
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({

@@ -1,33 +1,45 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Buffer } from "buffer";
 import { BleError, Device, ScanMode } from "react-native-ble-plx";
 import { useBLE } from "./useBLE";
 import { Platform } from "react-native";
+
+const isAndroid = Platform.OS === "android";
 
 interface WeightData {
   weight: number;
   unit: "kg" | "lb";
 }
 
-const getWeightData = (manufacturerData: string) => {
+// Constants
+const DEVICE_NAME_PATTERN = "IF_B7"; // WH-C06 Bluetooth Scale
+const MAX_DATA_POINTS = 1000; // Prevent memory leaks by limiting data points
+const WEIGHT_DATA_BYTE_OFFSET = 12;
+
+const getWeightData = (manufacturerData: string): WeightData | undefined => {
   try {
     const data = Array.from(Buffer.from(manufacturerData, "base64"));
 
-    // console.log("=== Weight Calculation ===");
-    // console.log(`Byte 12: ${data[12]}`);
-    // console.log(`Byte 13: ${data[13]}`);
+    // Add validation for data length
+    if (data.length < WEIGHT_DATA_BYTE_OFFSET + 2) {
+      throw new Error("Invalid manufacturer data length");
+    }
 
     // Convert two bytes to a 16-bit integer (big-endian)
-    const weight = (data[12] * 256 + data[13]) / 100;
-    const isStable = data[16] === 1; // From STABLE_OFFSET in iOS code
+    const weight =
+      (data[WEIGHT_DATA_BYTE_OFFSET] * 256 +
+        data[WEIGHT_DATA_BYTE_OFFSET + 1]) /
+      100;
 
-    // console.log(`Result: ${weight}${isStable ? " (stable)" : " (unstable)"}`);
-    // console.log("Full data:", data);
-    // console.log("========================");
+    // Validate weight is a reasonable number
+    if (isNaN(weight) || weight < 0 || weight > 1000) {
+      throw new Error("Invalid weight value");
+    }
 
-    return { weight, unit: "kg" } as WeightData; // iOS code doesn't show unit checking
+    return { weight, unit: "kg" };
   } catch (e) {
-    console.log("Error parsing data:", e);
+    console.error("Error parsing weight data:", e);
+    return undefined;
   }
 };
 
@@ -53,53 +65,52 @@ export const useScale = () => {
     []
   );
   const { bleManager, bleInitialized } = useBLE();
-  const isAndroid = Platform.OS === "android";
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setWeightData(initialWeightData);
-  };
+    setWeightDataPoints([]);
+  }, []);
 
-  const scan = (error: BleError | null, device: Device | null) => {
+  const scan = useCallback((error: BleError | null, device: Device | null) => {
     if (error) {
-      console.log("Scan error:", error);
+      console.error("Scan error:", error);
       return;
     }
 
     const manufacturerData = device?.manufacturerData;
-
-    if (manufacturerData && device?.name?.includes("IF_B7")) {
-      const data = getWeightData(manufacturerData);
-
-      if (data) {
-        setWeightData((prevState) => ({
-          unit: data.unit,
-          weight: data.weight,
-          maxWeight:
-            data.weight > prevState.maxWeight
-              ? data.weight
-              : prevState.maxWeight,
-        }));
-        setWeightDataPoints((prev) => [
-          ...prev,
-          { weight: data.weight, timestamp: Date.now() },
-        ]);
-      }
+    if (!manufacturerData || !device?.name?.includes(DEVICE_NAME_PATTERN)) {
+      return;
     }
-  };
+
+    const data = getWeightData(manufacturerData);
+    if (!data) return;
+
+    setWeightData((prevState) => ({
+      unit: data.unit,
+      weight: data.weight,
+      maxWeight: Math.max(data.weight, prevState.maxWeight),
+    }));
+
+    setWeightDataPoints((prev) => {
+      const newPoints = [
+        ...prev,
+        { weight: data.weight, timestamp: Date.now() },
+      ].slice(-MAX_DATA_POINTS); // Keep only the last MAX_DATA_POINTS
+      return newPoints;
+    });
+  }, []);
 
   useEffect(() => {
     if (!bleInitialized) return;
 
-    bleManager.startDeviceScan(
-      null,
-      isAndroid ? { scanMode: ScanMode.LowLatency } : null,
-      scan
-    );
+    const scanOptions = isAndroid ? { scanMode: ScanMode.LowLatency } : null;
+    bleManager.startDeviceScan(null, scanOptions, scan);
 
     return () => {
       bleManager.stopDeviceScan();
     };
-  }, [bleInitialized]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bleInitialized, scan]);
 
   return { weightData, weightDataPoints, reset };
 };
