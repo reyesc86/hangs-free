@@ -15,6 +15,14 @@
     "prepare": "husky",
     "lint-staged": "lint-staged"
   },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "npm run ts-check"
+    ],
+    "*.{js,jsx,ts,tsx}": [
+      "npm run lint:fix"
+    ]
+  },
   "jest": {
     "preset": "jest-expo"
   },
@@ -70,13 +78,5 @@
     "tsc-files": "1.1.4",
     "typescript": "5.7.3"
   },
-  "private": true,
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "npm run ts-check"
-    ],
-    "*.{js,jsx,ts,tsx}": [
-      "npm run lint:fix"
-    ]
-  }
+  "private": true
 }
