@@ -1,7 +1,9 @@
-import { renderHook, act } from "@testing-library/react-native";
-import { useScale } from "../useScale";
-import { useBLE } from "../useBLE";
 import { Buffer } from "buffer";
+
+import { renderHook, act } from "@testing-library/react-native";
+
+import { useBLE } from "../useBLE";
+import { useScale } from "../useScale";
 
 jest.mock("../useBLE", () => ({
   useBLE: jest.fn(),

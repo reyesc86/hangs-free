@@ -1,8 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
-import { Buffer } from "buffer";
-import { BleError, Device, ScanMode } from "react-native-ble-plx";
-import { useBLE } from "./useBLE";
+
 import { Platform } from "react-native";
+import { BleError, Device, ScanMode } from "react-native-ble-plx";
+
+import { Buffer } from "buffer";
+
+import { useBLE } from "./useBLE";
 
 const isAndroid = Platform.OS === "android";
 

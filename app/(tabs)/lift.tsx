@@ -1,14 +1,16 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+
 import { StyleSheet, Pressable, Text, Platform, TextInput } from "react-native";
+import { LineGraph } from "react-native-graph";
+
 import ParallaxScrollView from "@/components/common/ParallaxScrollView";
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import { WeightDisplay } from "@/components/WeightDisplay";
-import { useScale } from "@/hooks/useScale";
-import { SegmentedControl } from "@/components/ui/SegmentedControl";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { LineGraph } from "react-native-graph";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { useScale } from "@/hooks/useScale";
 import { HandData, HandType, CycleData, WeightDataPoint } from "@/types/weight";
 
 const getPercentage = (value: number, base: number) => (value / base) * 100;

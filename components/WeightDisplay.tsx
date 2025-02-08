@@ -1,9 +1,11 @@
 import React from "react";
-import { StyleSheet } from "react-native";
+
+import { Platform, StyleSheet } from "react-native";
+
+import { WeightDataWithMax } from "@/types/weight";
+
 import { ThemedText } from "./ui/ThemedText";
 import { ThemedView } from "./ui/ThemedView";
-import { WeightDataWithMax } from "@/types/weight";
-import { Platform } from "react-native";
 
 interface WeightDisplayProps {
   data: WeightDataWithMax;

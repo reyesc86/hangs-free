@@ -1,6 +1,6 @@
-import { StyleSheet, Pressable, View } from "react-native";
+import { StyleSheet, Pressable, View, useColorScheme } from "react-native";
+
 import { ThemedText } from "./ThemedText";
-import { useColorScheme } from "react-native";
 
 interface SegmentedControlProps {
   values: string[];

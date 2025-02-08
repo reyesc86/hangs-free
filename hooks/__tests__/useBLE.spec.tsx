@@ -1,6 +1,8 @@
-import { renderHook, waitFor } from "@testing-library/react-native";
-import { useBLE } from "../useBLE";
 import { PermissionsAndroid, Platform } from "react-native";
+
+import { renderHook, waitFor } from "@testing-library/react-native";
+
+import { useBLE } from "../useBLE";
 
 jest.mock("react-native-ble-plx", () => ({
   BleManager: jest.fn(),
