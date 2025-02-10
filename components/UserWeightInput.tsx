@@ -5,13 +5,15 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { ThemedText } from "./ui/ThemedText";
 import { ThemedView } from "./ui/ThemedView";
 
+type UserWeightInputProps = {
+  value: string;
+  onChangeText: (text: string) => void;
+};
+
 export const UserWeightInput = ({
   value,
   onChangeText,
-}: {
-  value: string;
-  onChangeText: (text: string) => void;
-}) => {
+}: UserWeightInputProps) => {
   const colorScheme = useColorScheme() ?? "light";
   const isLight = colorScheme === "light";
 
