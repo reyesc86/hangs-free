@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { StyleSheet, Pressable, Text, Platform, TextInput } from "react-native";
+import { StyleSheet, Pressable, Text, Platform } from "react-native";
 import { LineGraph } from "react-native-graph";
 
 import ParallaxScrollView from "@/components/common/ParallaxScrollView";
@@ -8,6 +8,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
+import { UserWeightInput } from "@/components/UserWeightInput";
 import { WeightDisplay } from "@/components/WeightDisplay";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useScale } from "@/hooks/useScale";
@@ -47,6 +48,10 @@ export default function LiftScreen() {
   const [userWeight, setUserWeight] = useState("");
 
   const { weightData, weightDataPoints, reset } = useScale();
+
+  const handleWeightChange = useCallback((weight: string) => {
+    setUserWeight(weight);
+  }, []);
 
   const handleResetHand = useCallback(() => {
     setHandData((prev) => ({
@@ -131,6 +136,56 @@ export default function LiftScreen() {
 
   const isIpad = Platform.OS === "ios" && Platform.isPad;
 
+  const summaryView = useMemo(
+    () => (
+      <ThemedView style={styles.summaryContainer}>
+        <ThemedText style={styles.summaryTitle}>Summary max</ThemedText>
+        <ThemedView style={styles.summaryRow}>
+          <ThemedView style={{ alignItems: "center" }}>
+            <ThemedText style={styles.summaryText}>
+              Left: {handData.left.maxWeight}
+              {handData.left.unit}{" "}
+            </ThemedText>
+            <ThemedText style={styles.percentage}>
+              {percentages.left}
+            </ThemedText>
+          </ThemedView>
+          <ThemedView style={{ alignItems: "center" }}>
+            <ThemedText style={styles.summaryText}>
+              Right: {handData.right.maxWeight}
+              {handData.right.unit}
+            </ThemedText>
+            <ThemedText style={styles.percentage}>
+              {percentages.right}
+            </ThemedText>
+          </ThemedView>
+        </ThemedView>
+        <Pressable
+          style={({ pressed }) => [
+            {
+              backgroundColor: pressed
+                ? "rgba(212, 52, 76, 0.5)"
+                : "rgb(212, 52, 76)",
+            },
+            styles.resetAllButton,
+          ]}
+          onPress={handleResetAll}
+        >
+          <Text style={styles.resetCycleText}>Reset</Text>
+        </Pressable>
+      </ThemedView>
+    ),
+    [
+      handData.left.maxWeight,
+      handData.left.unit,
+      handData.right.maxWeight,
+      handData.right.unit,
+      handleResetAll,
+      percentages.left,
+      percentages.right,
+    ]
+  );
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
@@ -143,20 +198,7 @@ export default function LiftScreen() {
         />
       }
     >
-      <ThemedView style={styles.userWeightContainer}>
-        <ThemedText>Your weight: </ThemedText>
-        <TextInput
-          style={{
-            ...styles.input,
-            borderColor: isLight ? "#000000" : "#FFFFFF",
-            color: isLight ? "#000000" : "#FFFFFF",
-          }}
-          onChangeText={setUserWeight}
-          value={userWeight}
-          placeholder="Weight"
-          keyboardType="numeric"
-        />
-      </ThemedView>
+      <UserWeightInput value={userWeight} onChangeText={handleWeightChange} />
       <ThemedView style={styles.segmentContainer}>
         <SegmentedControl
           values={["Left Hand", "Right Hand"]}
@@ -230,43 +272,7 @@ export default function LiftScreen() {
           </Pressable>
         </ThemedView>
       </ThemedView>
-
-      <ThemedView style={styles.summaryContainer}>
-        <ThemedText style={styles.summaryTitle}>Summary max</ThemedText>
-        <ThemedView style={styles.summaryRow}>
-          <ThemedView style={{ alignItems: "center" }}>
-            <ThemedText style={styles.summaryText}>
-              Left: {handData.left.maxWeight}
-              {handData.left.unit}{" "}
-            </ThemedText>
-            <ThemedText style={styles.percentage}>
-              {percentages.left}
-            </ThemedText>
-          </ThemedView>
-          <ThemedView style={{ alignItems: "center" }}>
-            <ThemedText style={styles.summaryText}>
-              Right: {handData.right.maxWeight}
-              {handData.right.unit}
-            </ThemedText>
-            <ThemedText style={styles.percentage}>
-              {percentages.right}
-            </ThemedText>
-          </ThemedView>
-        </ThemedView>
-        <Pressable
-          style={({ pressed }) => [
-            {
-              backgroundColor: pressed
-                ? "rgba(212, 52, 76, 0.5)"
-                : "rgb(212, 52, 76)",
-            },
-            styles.resetAllButton,
-          ]}
-          onPress={handleResetAll}
-        >
-          <Text style={styles.resetCycleText}>Reset</Text>
-        </Pressable>
-      </ThemedView>
+      {summaryView}
     </ParallaxScrollView>
   );
 }
@@ -281,12 +287,6 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: "row",
     gap: 8,
-  },
-  userWeightContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 8,
   },
   segmentContainer: {},
   segment: {},
@@ -335,12 +335,6 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   percentage: { marginTop: 4, fontSize: 16, lineHeight: 16 },
-  input: {
-    height: 40,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 8,
-  },
   resetAllButton: {
     alignItems: "center",
     padding: 16,
