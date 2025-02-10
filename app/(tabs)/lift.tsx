@@ -5,7 +5,6 @@ import { LineGraph } from "react-native-graph";
 
 import ParallaxScrollView from "@/components/common/ParallaxScrollView";
 import { CycleWeightDisplay } from "@/components/CycleWeightDisplay";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { ThemedView } from "@/components/ui/ThemedView";
@@ -202,17 +201,7 @@ export default function LiftScreen() {
   );
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
-      headerImage={
-        <IconSymbol
-          size={210}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }
-    >
+    <ParallaxScrollView>
       <UserWeightInput value={userWeight} onChangeText={handleWeightChange} />
       <ThemedView style={styles.segmentContainer}>
         <SegmentedControl

@@ -50,6 +50,17 @@ export default function TabLayout() {
           ...(Platform.OS === "web" && { href: null }),
         }}
       />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          // Hide the tab for now
+          href: null,
+          title: "Settings",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="gearshape.fill" color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
