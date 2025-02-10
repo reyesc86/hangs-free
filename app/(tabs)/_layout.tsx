@@ -16,7 +16,6 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        // @ts-expect-error
         animation: "shift",
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,

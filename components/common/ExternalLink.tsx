@@ -12,7 +12,6 @@ export function ExternalLink({ href, ...rest }: Props) {
     <Link
       target="_blank"
       {...rest}
-      // @ts-ignore - expo-router types don't properly handle string hrefs
       href={href}
       onPress={async (event) => {
         if (Platform.OS !== "web") {
