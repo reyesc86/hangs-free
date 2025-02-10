@@ -56,6 +56,18 @@ export default function LiftScreen() {
     setUserWeight(weight);
   }, []);
 
+  const handleHandChange = useCallback(
+    (index: number) => {
+      const newHand = index === 0 ? "left" : "right";
+      setSelectedHand(newHand);
+      setCycleStarted(false);
+      const handCycleData = cycleData[newHand];
+      setCurrentPoint(handCycleData[handCycleData.length - 1]);
+      reset();
+    },
+    [cycleData, reset]
+  );
+
   const handleResetHand = useCallback(() => {
     setHandData((prev) => ({
       ...prev,
@@ -66,6 +78,7 @@ export default function LiftScreen() {
       ...prev,
       [selectedHand]: INITIAL_CYCLE_HAND_DATA,
     }));
+    setCurrentPoint(INITIAL_CYCLE_HAND_DATA[0]);
     reset();
   }, [selectedHand, reset]);
 
@@ -205,7 +218,7 @@ export default function LiftScreen() {
         <SegmentedControl
           values={["Left Hand", "Right Hand"]}
           selectedIndex={selectedHand === "left" ? 0 : 1}
-          onChange={(index) => setSelectedHand(index === 0 ? "left" : "right")}
+          onChange={handleHandChange}
           style={styles.segment}
         />
       </ThemedView>
@@ -248,6 +261,11 @@ export default function LiftScreen() {
                   timestamp: point.date.getTime(),
                 })
               }
+              onGestureEnd={() => {
+                const lastPoint =
+                  cycleData[selectedHand][cycleData[selectedHand].length - 1];
+                setCurrentPoint(lastPoint);
+              }}
               color={isLight ? "#000000" : "#FFFFFF"}
               verticalPadding={12}
               horizontalPadding={12}
