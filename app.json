@@ -2,7 +2,7 @@
   "expo": {
     "name": "Hangs Free",
     "slug": "hangs-free",
-    "version": "0.1.8",
+    "version": "0.1.9",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -47,10 +47,7 @@
         "react-native-ble-plx",
         {
           "isBackgroundEnabled": true,
-          "modes": [
-            "peripheral",
-            "central"
-          ],
+          "modes": ["peripheral", "central"],
           "bluetoothAlwaysPermission": "Allow $(PRODUCT_NAME) to connect to bluetooth devices"
         }
       ]
