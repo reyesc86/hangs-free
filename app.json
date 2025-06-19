@@ -21,9 +21,11 @@
         "backgroundColor": "#642b64"
       },
       "permissions": [
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_CONNECT", 
         "android.permission.BLUETOOTH",
         "android.permission.BLUETOOTH_ADMIN",
-        "android.permission.BLUETOOTH_CONNECT"
+        "android.permission.ACCESS_FINE_LOCATION"
       ],
       "package": "com.rbatsenko.hangsfree"
     },
