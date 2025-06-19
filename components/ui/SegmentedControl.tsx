@@ -1,6 +1,7 @@
-import { StyleSheet, Pressable, View, useColorScheme } from "react-native";
+import { StyleSheet, Pressable, View } from "react-native";
 
 import { colors } from "@/constants/colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 import { ThemedText } from "./ThemedText";
 
@@ -9,6 +10,7 @@ interface SegmentedControlProps {
   selectedIndex: number;
   onChange: (index: number) => void;
   style?: any;
+  variant?: 'default' | 'connected';
 }
 
 export function SegmentedControl({
@@ -16,6 +18,7 @@ export function SegmentedControl({
   selectedIndex,
   onChange,
   style,
+  variant = 'default',
 }: SegmentedControlProps) {
   const colorScheme = useColorScheme();
   const theme = colorScheme ?? "light";
@@ -23,7 +26,7 @@ export function SegmentedControl({
   return (
     <View
       style={[
-        styles.container,
+        variant === 'connected' ? styles.connectedContainer : styles.container,
         style,
         {
           backgroundColor: colors[theme].segmentedControlBackground,
@@ -58,6 +61,11 @@ export function SegmentedControl({
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: "row",
+    borderRadius: 8,
+    padding: 0,
+  },
+  connectedContainer: {
     flexDirection: "row",
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,

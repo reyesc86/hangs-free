@@ -1,50 +1,49 @@
-# Welcome to your Expo app 👋
+# Hangs Free
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native app for tracking hangboard training with Bluetooth scale integration.
 
-## Get started
+🌐 **Website**: [hangsfree.com](https://hangsfree.com)
 
-1. Install dependencies
+## Features
 
-   ```bash
-   npm install
-   ```
+- Real-time weight measurement from connected scales (WH-C06, Tindeq Progressor)
+- Manual dark mode switcher (System/Light/Dark)
+- Training session tracking with stopwatch
+- Device selection and Bluetooth management
 
-2. Start the app
-
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Setup
 
 ```bash
-npm run reset-project
+npm install
+npm start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+For development builds with device connectivity:
+```bash
+eas build --platform ios --profile development
+```
 
-## Learn more
+## Tech Stack
 
-To learn more about developing your project with Expo, look at the following resources:
+- React Native + Expo Router
+- TypeScript
+- MMKV for storage
+- React Native BLE PLX for Bluetooth
+- Jest for testing
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Project Structure
 
-## Join the community
+```
+app/                 # Expo Router pages
+components/          # UI components
+contexts/           # React contexts
+hooks/              # Custom hooks
+```
 
-Join our community of developers creating universal apps.
+## Testing
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npm test
+npm run ts-check
+npm run lint
+```
