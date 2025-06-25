@@ -16,7 +16,7 @@
         { "type": "style", "section": "Styles", "hidden": false },
         { "type": "chore", "section": "Miscellaneous Chores", "hidden": false }
       ],
-      "release-as": "0.1.13",
+
       "include-component-in-tag": false,
       "include-v-in-tag": true,
       "versioning-strategy": "default",
