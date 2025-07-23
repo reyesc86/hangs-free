@@ -16,6 +16,9 @@ const isAndroid = Platform.OS === "android";
 const DEVICE_NAME_PATTERN = "IF_B7"; // WH-C06 Bluetooth Scale
 const MAX_DATA_POINTS = 1000; // Prevent memory leaks by limiting data points
 const WEIGHT_DATA_BYTE_OFFSET = 12;
+const UNIT_DATA_BYTE_OFFSET = 11;
+const LB_BYTE_VALUE = 0xD4; // kg is 0x01
+const LB_TO_KG_RATIO = 0.453592;
 
 const getWeightData = (manufacturerData: string): WeightData | undefined => {
   try {
@@ -27,10 +30,15 @@ const getWeightData = (manufacturerData: string): WeightData | undefined => {
     }
 
     // Convert two bytes to a 16-bit integer (big-endian)
-    const weight =
+    const rawWeight =
       (data[WEIGHT_DATA_BYTE_OFFSET] * 256 +
         data[WEIGHT_DATA_BYTE_OFFSET + 1]) /
       100;
+
+    // Convert to kg if needed and round to 2 decimal places
+    const weight = data[UNIT_DATA_BYTE_OFFSET] === LB_BYTE_VALUE
+      ? Number((rawWeight * LB_TO_KG_RATIO).toFixed(2))
+      : Number(rawWeight.toFixed(2));
 
     // Validate weight is a reasonable number
     if (isNaN(weight) || weight < 0 || weight > 1000) {
